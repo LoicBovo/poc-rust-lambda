@@ -42,17 +42,11 @@ async fn func(event: LambdaEvent<Person>) -> Result<Value, Error> {
         table_name,
     };
 
-    let put_result = put_item(&datatable,&person_json);
+    put_item(&datatable,&person_json).await?;
 
-    let get_result = get_item(&datatable, &person);
-    
-    // normally we should do it sequencially just wanted to use the join feature to try it out
-    // gain a bit of performance too 
-    let (put_item, get_item) = futures::join!(put_result,get_result);
+    let get_result = get_item(&datatable, &person).await?;
 
-    put_item.expect("failed inserting data");
-
-    println!("return of the get {:?}", get_item);
+    println!("return of the get {:?}", get_result);
 
     Ok(json!({ "statusCode": 200 ,"message": format!("Hello, {}!", person.first_name) }))
 }
